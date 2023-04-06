@@ -1,0 +1,21 @@
+{
+  "name": "com.spellboundar.boids",
+  "version": "1.0.0",
+  "displayName": "Boids",
+  "description": "A library for spawning and using boids.",
+  "unity": "2019.1",
+  "keywords": [
+    "boids"
+  ],
+  "author": "Chris Monteferrante <chris@spellboundar.com>",
+  "type": "tool",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpellBoundAR-Packages/boids.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SpellBoundAR-Packages/boids/issues"
+  },
+  "homepage": "https://github.com/SpellBoundAR-Packages/boids#readme"
+}

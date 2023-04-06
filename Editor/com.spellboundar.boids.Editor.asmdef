@@ -1,0 +1,18 @@
+{
+    "name": "com.spellboundar.boids.Editor",
+    "rootNamespace": "SpellBoundAR.Boids",
+    "references": [
+        "GUID:bddba2fe955214259b22ec41715965e7"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

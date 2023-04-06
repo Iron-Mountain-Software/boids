@@ -1,0 +1,14 @@
+{
+    "name": "com.spellboundar.boids",
+    "rootNamespace": "SpellBoundAR.Boids",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
