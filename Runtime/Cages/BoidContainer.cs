@@ -3,7 +3,7 @@ using UnityEngine;
 namespace SpellBoundAR.Boids.Cages
 {
     [ExecuteAlways]
-    public abstract class BoidCage : MonoBehaviour
+    public abstract class BoidContainer : MonoBehaviour
     {
         [Header("Settings")]
         [SerializeField] private Vector3 offset;

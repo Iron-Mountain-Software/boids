@@ -3,7 +3,7 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace SpellBoundAR.Boids.Cages
 {
-    public class BoidCageSphere : BoidCage
+    public class BoidContainerSphere : BoidContainer
     {
         [SerializeField] private float radius = 5;
 

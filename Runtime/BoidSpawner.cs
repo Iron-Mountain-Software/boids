@@ -28,7 +28,7 @@ namespace SpellBoundAR.Boids
             for (int i = 0; i < amount; i++)
             {
                 Vector3 position = manager ? manager.transform.position : Vector3.zero;
-                if (manager && manager.Cage) position = manager.Cage.GetRandomWorldPositionInCage();
+                if (manager && manager.ContainerAvoidance.Container) position = manager.ContainerAvoidance.Container.GetRandomWorldPositionInCage();
                 
                 Quaternion rotation = Quaternion.Euler(
                     Random.Range(0f, 360f),

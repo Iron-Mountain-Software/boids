@@ -3,7 +3,7 @@ using Random = UnityEngine.Random;
 
 namespace SpellBoundAR.Boids.Cages
 {
-    public class BoidCageCube : BoidCage
+    public class BoidContainerCube : BoidContainer
     {
         [SerializeField] private Vector3 dimensions = new (10, 10, 10);
         
