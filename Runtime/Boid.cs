@@ -36,12 +36,12 @@ namespace SpellBoundAR.Boids
         private void Awake()
         {
             _transform = transform;
+            _frameOffset = Random.Range(0, manager.framesBetweenForceUpdates);
         }
 
         public void Initialize(BoidManager newManager)
         {
             Manager = newManager;
-            _frameOffset = Random.Range(0, manager.framesBetweenForceUpdates);
         }
 
         private void OnEnable()
@@ -56,6 +56,7 @@ namespace SpellBoundAR.Boids
 
         private void Update()
         {
+            if (!manager) return;
             UpdateForces();
             MoveForward();
         }
@@ -125,6 +126,8 @@ namespace SpellBoundAR.Boids
 
         private void MoveForward()
         {
+            if (!manager) return;
+
             _velocity = transform.forward * manager.speed + _finalForce * Time.deltaTime;
             _velocity = _velocity.normalized * (manager.speed * Time.deltaTime);
 
@@ -143,6 +146,8 @@ namespace SpellBoundAR.Boids
 
         private Vector3 CheckForObstacle(Vector3 pos, Vector3 direction)
         {
+            if (!manager) return Vector3.zero;
+
             var layer = manager.ColliderAvoidance.Layers;
             if (Physics.Raycast(pos, direction, out RaycastHit hit, manager.ColliderAvoidance.RaycastDistance))
             {
