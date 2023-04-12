@@ -1,3 +1,4 @@
+using UnityEditor.U2D;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -5,7 +6,14 @@ namespace SpellBoundAR.Boids
 {
     public class BoidSpawner : MonoBehaviour, IBoidSpawner
     {
+        private enum SpawnPositionType
+        {
+            InContainer,
+            AtSelf,
+        }
+        
         [SerializeField] private bool spawnOnStart = true;
+        [SerializeField] private SpawnPositionType spawnPositionType = SpawnPositionType.InContainer;
         [SerializeField] private BoidManager manager;
         [SerializeField] private Boid prefab;
         [SerializeField] private Transform parent;
@@ -27,9 +35,7 @@ namespace SpellBoundAR.Boids
             if (!prefab) return;
             for (int i = 0; i < amount; i++)
             {
-                Vector3 position = manager ? manager.transform.position : Vector3.zero;
-                if (manager && manager.ContainerAvoidance.Container) position = manager.ContainerAvoidance.Container.GetRandomWorldPositionInCage();
-                
+                Vector3 position = GetSpawnPoint();
                 Quaternion rotation = Quaternion.Euler(
                     Random.Range(0f, 360f),
                     Random.Range(0f, 360f),
@@ -37,6 +43,22 @@ namespace SpellBoundAR.Boids
                 );
                 
                 Instantiate(prefab, position, rotation, parent).Initialize(manager);
+            }
+        }
+
+        private Vector3 GetSpawnPoint()
+        {
+            switch (spawnPositionType)
+            {
+                case SpawnPositionType.AtSelf:
+                    return transform.position;
+                case SpawnPositionType.InContainer:
+                    if (!manager) return transform.position;
+                    return manager.ContainerAvoidance.Container
+                        ? manager.ContainerAvoidance.Container.GetRandomWorldPositionInContainer()
+                        : manager.transform.position;
+                default:
+                    return transform.position; 
             }
         }
 

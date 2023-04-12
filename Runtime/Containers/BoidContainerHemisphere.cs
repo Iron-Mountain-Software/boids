@@ -1,9 +1,8 @@
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-namespace SpellBoundAR.Boids.Cages
+namespace SpellBoundAR.Boids.Containers
 {
     public class BoidContainerHemisphere : BoidContainer
     {
@@ -12,7 +11,7 @@ namespace SpellBoundAR.Boids.Cages
         [Header("Cache")]
         private Plane _plane = new ();
         
-        public override Vector3 GetRandomWorldPositionInCage()
+        public override Vector3 GetRandomWorldPositionInContainer()
         {
             Vector3 randomPoint = Random.insideUnitSphere * radius;
             _plane.SetNormalAndPosition(transform.up, Vector3.zero);
@@ -20,7 +19,7 @@ namespace SpellBoundAR.Boids.Cages
             return Position + Offset + randomPoint;
         }
 
-        public override bool WorldPositionIsInCage(Vector3 worldPosition)
+        public override bool WorldPositionIsInContainer(Vector3 worldPosition)
         {
             Vector3 cagePosition = Position + Offset;
             Vector3 delta = worldPosition - cagePosition;
@@ -30,7 +29,7 @@ namespace SpellBoundAR.Boids.Cages
             return inSphere && correctSide;
         }
 
-        public override Vector3 ClosestPointInOrOnCage(Vector3 worldPosition)
+        public override Vector3 ClosestPointInOrOnContainer(Vector3 worldPosition)
         {
             Vector3 cagePosition = Position + Offset;
             Vector3 delta = worldPosition - cagePosition;

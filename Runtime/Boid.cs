@@ -103,9 +103,9 @@ namespace SpellBoundAR.Boids
             
             if (manager.ContainerAvoidance.Enabled
                 && manager.ContainerAvoidance.Container
-                && !manager.ContainerAvoidance.Container.WorldPositionIsInCage(myPosition))
+                && !manager.ContainerAvoidance.Container.WorldPositionIsInContainer(myPosition))
             {
-                Vector3 closestPointOnCage = manager.ContainerAvoidance.Container.ClosestPointInOrOnCage(myPosition);
+                Vector3 closestPointOnCage = manager.ContainerAvoidance.Container.ClosestPointInOrOnContainer(myPosition);
                 _avoidWallsForce = (closestPointOnCage - myPosition).normalized;
             }
             else _avoidWallsForce = Vector3.zero;

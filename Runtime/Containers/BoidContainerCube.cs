@@ -1,7 +1,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace SpellBoundAR.Boids.Cages
+namespace SpellBoundAR.Boids.Containers
 {
     public class BoidContainerCube : BoidContainer
     {
@@ -13,7 +13,7 @@ namespace SpellBoundAR.Boids.Cages
             set => dimensions = value;
         }
 
-        public override Vector3 GetRandomWorldPositionInCage()
+        public override Vector3 GetRandomWorldPositionInContainer()
         {
             Vector3 cagePosition = Position + Offset;
             Vector3 currentScale = Scale;
@@ -27,7 +27,7 @@ namespace SpellBoundAR.Boids.Cages
             );
         }
 
-        public override bool WorldPositionIsInCage(Vector3 worldPosition)
+        public override bool WorldPositionIsInContainer(Vector3 worldPosition)
         {
             Vector3 cagePosition = Position + Offset;
             Vector3 currentScale = Scale;
@@ -42,7 +42,7 @@ namespace SpellBoundAR.Boids.Cages
                    && worldPosition.z <= cagePosition.z + zRadius;
         }
 
-        public override Vector3 ClosestPointInOrOnCage(Vector3 worldPosition)
+        public override Vector3 ClosestPointInOrOnContainer(Vector3 worldPosition)
         {
             Vector3 cagePosition = Position + Offset;
             Vector3 currentScale = Scale;

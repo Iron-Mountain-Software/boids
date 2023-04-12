@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SpellBoundAR.Boids.Cages
+namespace SpellBoundAR.Boids.Containers
 {
     [ExecuteAlways]
     public abstract class BoidContainer : MonoBehaviour
@@ -30,8 +30,8 @@ namespace SpellBoundAR.Boids.Cages
         
         public Vector3 Scale => _transform.localScale;
 
-        public abstract Vector3 GetRandomWorldPositionInCage();
-        public abstract bool WorldPositionIsInCage(Vector3 worldPosition);
-        public abstract Vector3 ClosestPointInOrOnCage(Vector3 worldPosition);
+        public abstract Vector3 GetRandomWorldPositionInContainer();
+        public abstract bool WorldPositionIsInContainer(Vector3 worldPosition);
+        public abstract Vector3 ClosestPointInOrOnContainer(Vector3 worldPosition);
     }
 }
