@@ -24,7 +24,7 @@ namespace SpellBoundAR.Boids
         public BoidManager Manager
         {
             get => manager;
-            set
+            private set
             {
                 if (manager == value) return;
                 if (manager) manager.UnregisterBoid(this);
@@ -36,35 +36,36 @@ namespace SpellBoundAR.Boids
         private void Awake()
         {
             _transform = transform;
-            _frameOffset = Random.Range(0, manager.framesBetweenForceUpdates);
+            _frameOffset = Manager ? Random.Range(0, Manager.framesBetweenForceUpdates) : 0;
         }
 
         public void Initialize(BoidManager newManager)
         {
             Manager = newManager;
+            _frameOffset = Manager ? Random.Range(0, Manager.framesBetweenForceUpdates) : 0;
         }
 
         private void OnEnable()
         {
-            if (manager) manager.RegisterBoid(this);
+            if (Manager) Manager.RegisterBoid(this);
         }
 
         private void OnDisable()
         {
-            if (manager) manager.UnregisterBoid(this);
+            if (Manager) Manager.UnregisterBoid(this);
         }
 
         private void Update()
         {
-            if (!manager) return;
+            if (!Manager) return;
             UpdateForces();
             MoveForward();
         }
 
         private void UpdateForces()
         {
-            if (!manager) return;
-            if (Time.frameCount - _lastUpdateFrame + _frameOffset < manager.framesBetweenForceUpdates) return;
+            if (!Manager) return;
+            if (Time.frameCount - _lastUpdateFrame + _frameOffset < Manager.framesBetweenForceUpdates) return;
                 
             _lastUpdateFrame = Time.frameCount;
             
@@ -75,13 +76,13 @@ namespace SpellBoundAR.Boids
 
             int boidsNearby = 0;
 
-            foreach (Boid otherBoid in manager.Boids)
+            foreach (Boid otherBoid in Manager.Boids)
             {
                 if (!otherBoid || !otherBoid.enabled || otherBoid == this) continue;
                 Vector3 otherBoidPosition = otherBoid._transform.position;
                 Vector3 separation = myPosition - otherBoidPosition;
                 float distToOtherBoid = separation.magnitude;
-                if (distToOtherBoid > manager.perceptionRadius) continue;
+                if (distToOtherBoid > Manager.perceptionRadius) continue;
                 float otherBoidWeight = 1 / Mathf.Max(distToOtherBoid, .00001f);
                 separationSum += separation * otherBoidWeight;
                 cohesionSum += otherBoidPosition;
@@ -102,36 +103,36 @@ namespace SpellBoundAR.Boids
                 _alignmentForce = Vector3.zero;
             }
             
-            if (manager.ContainerAvoidance.Enabled
-                && manager.ContainerAvoidance.Container
-                && !manager.ContainerAvoidance.Container.WorldPositionIsInContainer(myPosition))
+            if (Manager.ContainerAvoidance.Enabled
+                && Manager.ContainerAvoidance.Container
+                && !Manager.ContainerAvoidance.Container.WorldPositionIsInContainer(myPosition))
             {
-                Vector3 closestPointOnCage = manager.ContainerAvoidance.Container.ClosestPointInOrOnContainer(myPosition);
+                Vector3 closestPointOnCage = Manager.ContainerAvoidance.Container.ClosestPointInOrOnContainer(myPosition);
                 _avoidWallsForce = (closestPointOnCage - myPosition).normalized;
             }
             else _avoidWallsForce = Vector3.zero;
 
-            if (manager.ColliderAvoidance.Enabled)
+            if (Manager.ColliderAvoidance.Enabled)
             {
                 _avoidObstacleForce = CheckForObstacle(myPosition, _transform.forward);
             }
             
             _finalForce = 
-                _separationForce * manager.separationWeight +
-                _cohesionForce * manager.cohesionWeight +
-                _alignmentForce * manager.alignmentWeight +
-                _avoidWallsForce * manager.ContainerAvoidance.Weight +
-                _avoidObstacleForce * manager.ColliderAvoidance.Weight;
+                _separationForce * Manager.separationWeight +
+                _cohesionForce * Manager.cohesionWeight +
+                _alignmentForce * Manager.alignmentWeight +
+                _avoidWallsForce * Manager.ContainerAvoidance.Weight +
+                _avoidObstacleForce * Manager.ColliderAvoidance.Weight;
         }
 
         private void MoveForward()
         {
-            if (!manager) return;
+            if (!Manager) return;
 
-            _velocity = transform.forward * manager.speed + _finalForce * Time.deltaTime;
-            _velocity = _velocity.normalized * (manager.speed * Time.deltaTime);
+            _velocity = transform.forward * Manager.speed + _finalForce * Time.deltaTime;
+            _velocity = _velocity.normalized * (Manager.speed * Time.deltaTime);
 
-            switch (manager.movementSpace)
+            switch (Manager.movementSpace)
             {
                 case Space.Self:
                     transform.localPosition += _velocity;
@@ -146,26 +147,26 @@ namespace SpellBoundAR.Boids
 
         private Vector3 CheckForObstacle(Vector3 pos, Vector3 direction)
         {
-            if (!manager) return Vector3.zero;
+            if (!Manager) return Vector3.zero;
 
-            var layer = manager.ColliderAvoidance.Layers;
-            if (Physics.Raycast(pos, direction, out RaycastHit hit, manager.ColliderAvoidance.RaycastDistance))
+            var layer = Manager.ColliderAvoidance.Layers;
+            if (Physics.Raycast(pos, direction, out RaycastHit hit, Manager.ColliderAvoidance.RaycastDistance))
             {
                 var raycastTries = 0;
                 var inc = RaycastIncrement;
                 while (raycastTries < MaximumObstacleRaycasts)
                 {
                     var up = new Vector3(direction.x, direction.y + inc, direction.z - inc);
-                    if (!Physics.Raycast(pos, up, manager.ColliderAvoidance.RaycastDistance))
+                    if (!Physics.Raycast(pos, up, Manager.ColliderAvoidance.RaycastDistance))
                         return new Vector3(direction.x, direction.y + inc * 2, direction.z - inc * 2);
                     var right = new Vector3(direction.x + inc, direction.y, direction.z - inc);
-                    if (!Physics.Raycast(pos, right, manager.ColliderAvoidance.RaycastDistance))
+                    if (!Physics.Raycast(pos, right, Manager.ColliderAvoidance.RaycastDistance))
                         return new Vector3(direction.x + inc * 2, direction.y, direction.z - inc * 2);
                     var down = new Vector3(direction.x, direction.y - inc, direction.z - inc);
-                    if (!Physics.Raycast(pos, down, manager.ColliderAvoidance.RaycastDistance))
+                    if (!Physics.Raycast(pos, down, Manager.ColliderAvoidance.RaycastDistance))
                         return new Vector3(direction.x, direction.y - inc * 2, direction.z - inc * 2);
                     var left = new Vector3(direction.x - inc, direction.y, direction.z - inc);
-                    if (!Physics.Raycast(pos, left, manager.ColliderAvoidance.RaycastDistance))
+                    if (!Physics.Raycast(pos, left, Manager.ColliderAvoidance.RaycastDistance))
                         return new Vector3(direction.x - inc * 2, direction.y, direction.z - inc * 2);
                     inc += RaycastIncrement;
                     raycastTries++;
