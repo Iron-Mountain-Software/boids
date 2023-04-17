@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -42,9 +43,10 @@ namespace SpellBoundAR.Boids
             if (spawnOnStart) SpawnBoids();
         }
 
-        public void SpawnBoids()
+        public List<Boid> SpawnBoids()
         {
-            if (!prefab) return;
+            List<Boid> boids = new List<Boid>();
+            if (!prefab) return boids;
             for (int i = 0; i < amount; i++)
             {
                 Vector3 position = GetSpawnPoint();
@@ -53,9 +55,11 @@ namespace SpellBoundAR.Boids
                     Random.Range(0f, 360f),
                     Random.Range(0f, 360f)
                 );
-                
-                Instantiate(prefab, position, rotation, parent).Initialize(manager);
+                Boid boid = Instantiate(prefab, position, rotation, parent);
+                boid.Initialize(manager);
+                boids.Add(boid);
             }
+            return boids;
         }
 
         private Vector3 GetSpawnPoint()
