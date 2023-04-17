@@ -7,12 +7,13 @@ namespace SpellBoundAR.Boids
     {
         private enum SpawnPositionType
         {
-            InContainer,
+            InManagerContainer,
             AtSelf,
+            AtManager
         }
-        
+
         [SerializeField] private bool spawnOnStart = true;
-        [SerializeField] private SpawnPositionType spawnPositionType = SpawnPositionType.InContainer;
+        [SerializeField] private SpawnPositionType spawnPositionType = SpawnPositionType.InManagerContainer;
         [SerializeField] private BoidManager manager;
         [SerializeField] private Boid prefab;
         [SerializeField] private Transform parent;
@@ -22,6 +23,18 @@ namespace SpellBoundAR.Boids
         {
             get => manager;
             set => manager = value;
+        }
+        
+        public Boid Prefab
+        {
+            get => prefab;
+            set => prefab = value;
+        }
+        
+        public int Amount
+        {
+            get => amount;
+            set => amount = value;
         }
 
         private void Start()
@@ -49,13 +62,15 @@ namespace SpellBoundAR.Boids
         {
             switch (spawnPositionType)
             {
-                case SpawnPositionType.AtSelf:
-                    return transform.position;
-                case SpawnPositionType.InContainer:
+                case SpawnPositionType.InManagerContainer:
                     if (!manager) return transform.position;
                     return manager.ContainerAvoidance.Container
                         ? manager.ContainerAvoidance.Container.GetRandomWorldPositionInContainer()
                         : manager.transform.position;
+                case SpawnPositionType.AtSelf:
+                    return transform.position;
+                case SpawnPositionType.AtManager:
+                    return manager ? manager.transform.position : transform.position;
                 default:
                     return transform.position; 
             }
