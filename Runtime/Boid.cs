@@ -9,6 +9,8 @@ namespace SpellBoundAR.Boids
         private const float RaycastIncrement = .15f;
 
         [SerializeField] private BoidManager manager;
+        [SerializeField] private bool overrideManagerSpeed;
+        [SerializeField] private float instanceSpeed;
         
         [Header("Cache")]
         private int _frameOffset;
@@ -27,6 +29,22 @@ namespace SpellBoundAR.Boids
                 RefreshFrameOffset();
             }
         }
+        
+        public bool OverrideManagerSpeed
+        {
+            get => overrideManagerSpeed;
+            set => overrideManagerSpeed = value;
+        }
+        
+        public float InstanceSpeed
+        {
+            get => instanceSpeed;
+            set => instanceSpeed = value;
+        }
+
+        private float Speed => overrideManagerSpeed
+            ? instanceSpeed
+            : manager ? manager.speed : 0f;
 
         private void OnValidate()
         {
@@ -170,8 +188,8 @@ namespace SpellBoundAR.Boids
         {
             if (!Manager) return;
 
-            Vector3 velocity = transform.forward * Manager.speed + _finalForce * Time.deltaTime;
-            velocity = velocity.normalized * (Manager.speed * Time.deltaTime);
+            Vector3 velocity = transform.forward * Speed + _finalForce * Time.deltaTime;
+            velocity = velocity.normalized * (Speed * Time.deltaTime);
 
             switch (Manager.movementSpace)
             {
