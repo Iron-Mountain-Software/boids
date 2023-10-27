@@ -54,14 +54,14 @@ namespace SpellBoundAR.Boids
         public ColliderAvoidanceSettings ColliderAvoidance => colliderAvoidance;
         public List<Boid> Boids => _boids;
 
-        public void RegisterBoid(Boid boid)
+        public void Register(Boid boid)
         {
             if (!boid || _boids.Contains(boid)) return;
             _boids.Add(boid);
             OnBoidsChanged?.Invoke();
         }
 
-        public void UnregisterBoid(Boid boid)
+        public void Unregister(Boid boid)
         {
             if (!boid || !_boids.Contains(boid)) return;
             _boids.Remove(boid);

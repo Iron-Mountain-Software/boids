@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SpellBoundAR.Boids
 {
@@ -10,16 +11,9 @@ namespace SpellBoundAR.Boids
         [SerializeField] private BoidManager manager;
         
         [Header("Cache")]
-        private Transform _transform;
         private int _frameOffset;
         private int _lastUpdateFrame;
-        private Vector3 _separationForce;
-        private Vector3 _cohesionForce;
-        private Vector3 _alignmentForce;
-        private Vector3 _avoidWallsForce;
-        private Vector3 _avoidObstacleForce;
         private Vector3 _finalForce;
-        private Vector3 _velocity;
         
         public BoidManager Manager
         {
@@ -27,32 +21,39 @@ namespace SpellBoundAR.Boids
             private set
             {
                 if (manager == value) return;
-                if (manager) manager.UnregisterBoid(this);
+                if (manager) manager.Unregister(this);
                 manager = value;
-                if (manager && enabled) manager.RegisterBoid(this);
+                if (manager && enabled) manager.Register(this);
+                RefreshFrameOffset();
             }
         }
 
-        private void Awake()
+        private void OnValidate()
         {
-            _transform = transform;
-            _frameOffset = Manager ? Random.Range(0, Manager.framesBetweenForceUpdates) : 0;
+            if (manager && enabled) manager.Register(this);
+            RefreshFrameOffset();
         }
 
         public void Initialize(BoidManager newManager)
         {
             Manager = newManager;
-            _frameOffset = Manager ? Random.Range(0, Manager.framesBetweenForceUpdates) : 0;
+            RefreshFrameOffset();
         }
 
         private void OnEnable()
         {
-            if (Manager) Manager.RegisterBoid(this);
+            if (Manager) Manager.Register(this);
+            RefreshFrameOffset();
         }
 
         private void OnDisable()
         {
-            if (Manager) Manager.UnregisterBoid(this);
+            if (Manager) Manager.Unregister(this);
+        }
+
+        private void RefreshFrameOffset()
+        {
+            _frameOffset = manager ? Random.Range(0, manager.framesBetweenForceUpdates) : 0;
         }
 
         private void Update()
@@ -69,17 +70,21 @@ namespace SpellBoundAR.Boids
                 
             _lastUpdateFrame = Time.frameCount;
             
-            Vector3 myPosition = _transform.position;
+            Vector3 myPosition = transform.position;
             Vector3 separationSum = Vector3.zero;
             Vector3 cohesionSum = Vector3.zero;
             Vector3 alignmentSum = Vector3.zero;
 
+            Vector3 separationForce;
+            Vector3 cohesionForce;
+            Vector3 alignmentForce;
+            
             int boidsNearby = 0;
 
             foreach (Boid otherBoid in Manager.Boids)
             {
                 if (!otherBoid || !otherBoid.enabled || otherBoid == this) continue;
-                Vector3 otherBoidPosition = otherBoid._transform.position;
+                Vector3 otherBoidPosition = otherBoid.transform.position;
                 Vector3 separation = myPosition - otherBoidPosition;
                 float distToOtherBoid = separation.magnitude;
                 if (distToOtherBoid > Manager.perceptionRadius) continue;
@@ -92,89 +97,93 @@ namespace SpellBoundAR.Boids
             
             if (boidsNearby > 0)
             {
-                _separationForce = separationSum / boidsNearby;
-                _cohesionForce = cohesionSum / boidsNearby - myPosition;
-                _alignmentForce = alignmentSum / boidsNearby;
+                separationForce = separationSum / boidsNearby;
+                cohesionForce = cohesionSum / boidsNearby - myPosition;
+                alignmentForce = alignmentSum / boidsNearby;
             }
             else
             {
-                _separationForce = Vector3.zero;
-                _cohesionForce = Vector3.zero;
-                _alignmentForce = Vector3.zero;
+                separationForce = Vector3.zero;
+                cohesionForce = Vector3.zero;
+                alignmentForce = Vector3.zero;
             }
-            
-            if (Manager.ContainerAvoidance.Enabled
-                && Manager.ContainerAvoidance.Container
-                && !Manager.ContainerAvoidance.Container.WorldPositionIsInContainer(myPosition))
-            {
-                Vector3 closestPointOnCage = Manager.ContainerAvoidance.Container.ClosestPointInOrOnContainer(myPosition);
-                _avoidWallsForce = (closestPointOnCage - myPosition).normalized;
-            }
-            else _avoidWallsForce = Vector3.zero;
 
-            if (Manager.ColliderAvoidance.Enabled)
-            {
-                _avoidObstacleForce = CheckForObstacle(myPosition, _transform.forward);
-            }
-            
+            Vector3 avoidWallsForce = GetContainerForce();
+            Vector3 avoidObstacleForce = GetAvoidObstaclesForce();
+
             _finalForce = 
-                _separationForce * Manager.separationWeight +
-                _cohesionForce * Manager.cohesionWeight +
-                _alignmentForce * Manager.alignmentWeight +
-                _avoidWallsForce * Manager.ContainerAvoidance.Weight +
-                _avoidObstacleForce * Manager.ColliderAvoidance.Weight;
+                separationForce * Manager.separationWeight +
+                cohesionForce * Manager.cohesionWeight +
+                alignmentForce * Manager.alignmentWeight +
+                avoidWallsForce * Manager.ContainerAvoidance.Weight +
+                avoidObstacleForce * Manager.ColliderAvoidance.Weight;
         }
 
-        private void MoveForward()
+        private Vector3 GetContainerForce()
         {
-            if (!Manager) return;
-
-            _velocity = transform.forward * Manager.speed + _finalForce * Time.deltaTime;
-            _velocity = _velocity.normalized * (Manager.speed * Time.deltaTime);
-
-            switch (Manager.movementSpace)
+            if (Manager
+                && Manager.ContainerAvoidance.Enabled
+                && Manager.ContainerAvoidance.Container
+                && !Manager.ContainerAvoidance.Container.WorldPositionIsInContainer(transform.position))
             {
-                case Space.Self:
-                    transform.localPosition += _velocity;
-                    break;
-                case Space.World:
-                    transform.position += _velocity;
-                    break;
+                Vector3 myPosition = transform.position;
+                Vector3 closestPointOnCage = Manager.ContainerAvoidance.Container.ClosestPointInOrOnContainer(myPosition);
+                return (closestPointOnCage - myPosition).normalized;
             }
-
-            if (_velocity != Vector3.zero) transform.rotation = Quaternion.LookRotation(_velocity);
+            return Vector3.zero;
         }
 
-        private Vector3 CheckForObstacle(Vector3 pos, Vector3 direction)
+        private Vector3 GetAvoidObstaclesForce()
         {
-            if (!Manager) return Vector3.zero;
+            if (!Manager || !Manager.ColliderAvoidance.Enabled) return Vector3.zero;
 
-            var layer = Manager.ColliderAvoidance.Layers;
-            if (Physics.Raycast(pos, direction, out RaycastHit hit, Manager.ColliderAvoidance.RaycastDistance))
+            Vector3 origin = transform.position;
+            Vector3 forward = transform.forward;
+
+            if (Physics.Raycast(origin, forward, out RaycastHit hit, Manager.ColliderAvoidance.RaycastDistance, Manager.ColliderAvoidance.Layers))
             {
                 var raycastTries = 0;
                 var inc = RaycastIncrement;
                 while (raycastTries < MaximumObstacleRaycasts)
                 {
-                    var up = new Vector3(direction.x, direction.y + inc, direction.z - inc);
-                    if (!Physics.Raycast(pos, up, Manager.ColliderAvoidance.RaycastDistance))
-                        return new Vector3(direction.x, direction.y + inc * 2, direction.z - inc * 2);
-                    var right = new Vector3(direction.x + inc, direction.y, direction.z - inc);
-                    if (!Physics.Raycast(pos, right, Manager.ColliderAvoidance.RaycastDistance))
-                        return new Vector3(direction.x + inc * 2, direction.y, direction.z - inc * 2);
-                    var down = new Vector3(direction.x, direction.y - inc, direction.z - inc);
-                    if (!Physics.Raycast(pos, down, Manager.ColliderAvoidance.RaycastDistance))
-                        return new Vector3(direction.x, direction.y - inc * 2, direction.z - inc * 2);
-                    var left = new Vector3(direction.x - inc, direction.y, direction.z - inc);
-                    if (!Physics.Raycast(pos, left, Manager.ColliderAvoidance.RaycastDistance))
-                        return new Vector3(direction.x - inc * 2, direction.y, direction.z - inc * 2);
+                    var up = new Vector3(forward.x, forward.y + inc, forward.z - inc);
+                    if (!Physics.Raycast(origin, up, Manager.ColliderAvoidance.RaycastDistance, Manager.ColliderAvoidance.Layers))
+                        return new Vector3(forward.x, forward.y + inc * 2, forward.z - inc * 2);
+                    var right = new Vector3(forward.x + inc, forward.y, forward.z - inc);
+                    if (!Physics.Raycast(origin, right, Manager.ColliderAvoidance.RaycastDistance, Manager.ColliderAvoidance.Layers))
+                        return new Vector3(forward.x + inc * 2, forward.y, forward.z - inc * 2);
+                    var down = new Vector3(forward.x, forward.y - inc, forward.z - inc);
+                    if (!Physics.Raycast(origin, down, Manager.ColliderAvoidance.RaycastDistance, Manager.ColliderAvoidance.Layers))
+                        return new Vector3(forward.x, forward.y - inc * 2, forward.z - inc * 2);
+                    var left = new Vector3(forward.x - inc, forward.y, forward.z - inc);
+                    if (!Physics.Raycast(origin, left, Manager.ColliderAvoidance.RaycastDistance, Manager.ColliderAvoidance.Layers))
+                        return new Vector3(forward.x - inc * 2, forward.y, forward.z - inc * 2);
                     inc += RaycastIncrement;
                     raycastTries++;
                 }
-
-                return new Vector3(direction.x, direction.y + inc * 2, direction.z - inc * 2);
+                return new Vector3(forward.x, forward.y + inc * 2, forward.z - inc * 2);
             }
             return Vector3.zero;
+        }
+        
+        private void MoveForward()
+        {
+            if (!Manager) return;
+
+            Vector3 velocity = transform.forward * Manager.speed + _finalForce * Time.deltaTime;
+            velocity = velocity.normalized * (Manager.speed * Time.deltaTime);
+
+            switch (Manager.movementSpace)
+            {
+                case Space.Self:
+                    transform.localPosition += velocity;
+                    break;
+                case Space.World:
+                    transform.position += velocity;
+                    break;
+            }
+
+            if (velocity != Vector3.zero) transform.rotation = Quaternion.LookRotation(velocity);
         }
     }
 }
