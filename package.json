@@ -1,6 +1,6 @@
 {
   "name": "com.spellboundar.boids",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "displayName": "Boids",
   "description": "A library for spawning and using boids.",
   "unity": "2019.1",
