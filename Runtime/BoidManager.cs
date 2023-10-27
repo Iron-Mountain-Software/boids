@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using SpellBoundAR.Boids.Containers;
+using IronMountain.Boids.Containers;
 using UnityEngine;
 
-namespace SpellBoundAR.Boids
+namespace IronMountain.Boids
 {
     public class BoidManager : MonoBehaviour
     {

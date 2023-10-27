@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace SpellBoundAR.Boids.Editor
+namespace IronMountain.Boids.Editor
 {
     [CustomEditor(typeof(BoidSpawner), true)]
     public class BoidSpawnerInspector : UnityEditor.Editor

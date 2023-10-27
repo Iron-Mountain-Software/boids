@@ -1,6 +1,6 @@
 {
-    "name": "com.spellboundar.boids",
-    "rootNamespace": "SpellBoundAR.Boids",
+    "name": "com.iron-mountain.boids",
+    "rootNamespace": "IronMountain.Boids",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

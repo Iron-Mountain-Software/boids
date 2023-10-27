@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace SpellBoundAR.Boids
+namespace IronMountain.Boids
 {
     public class BoidSpawner : MonoBehaviour, IBoidSpawner
     {

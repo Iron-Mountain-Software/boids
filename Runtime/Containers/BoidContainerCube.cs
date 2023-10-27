@@ -1,7 +1,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace SpellBoundAR.Boids.Containers
+namespace IronMountain.Boids.Containers
 {
     public class BoidContainerCube : BoidContainer
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SpellBoundAR.Boids.Containers
+namespace IronMountain.Boids.Containers
 {
     [ExecuteAlways]
     public abstract class BoidContainer : MonoBehaviour

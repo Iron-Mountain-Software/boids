@@ -1,7 +1,7 @@
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-namespace SpellBoundAR.Boids.Containers
+namespace IronMountain.Boids.Containers
 {
     public class BoidContainerSphere : BoidContainer
     {

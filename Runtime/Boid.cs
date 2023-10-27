@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace SpellBoundAR.Boids
+namespace IronMountain.Boids
 {
     public class Boid : MonoBehaviour
     {

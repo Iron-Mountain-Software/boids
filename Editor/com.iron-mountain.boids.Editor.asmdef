@@ -1,6 +1,6 @@
 {
-    "name": "com.spellboundar.boids.Editor",
-    "rootNamespace": "SpellBoundAR.Boids",
+    "name": "com.iron-mountain.boids.Editor",
+    "rootNamespace": "IronMountain.Boids",
     "references": [
         "GUID:bddba2fe955214259b22ec41715965e7"
     ],

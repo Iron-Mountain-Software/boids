@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SpellBoundAR.Boids
+namespace IronMountain.Boids
 {
     public interface IBoidSpawner
     {
