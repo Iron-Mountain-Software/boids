@@ -1,6 +1,6 @@
 {
   "name": "com.iron-mountain.boids",
-  "version": "1.3.2",
+  "version": "1.3.4",
   "displayName": "Boids",
   "author": "Chris Monteferrante <ludachrismonte@gmail.com>",
   "unity": "2019.1",
@@ -27,6 +27,14 @@
     {
       "type": "git",
       "url": "https://github.com/Iron-Mountain-Software/boids"
+    },
+    {
+      "type": "npm",
+      "url": "https://www.npmjs.com/package/com.iron-mountain.boids"
+    },
+    {
+      "type": "itch.io",
+      "url": "https://iron-mountain.itch.io/boids"
     }
   ],
   "dependencies": {}
